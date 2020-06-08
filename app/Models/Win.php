@@ -27,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Win query()
  * @method static Builder|Win whereId($value)
  * @method static Builder|Win whereValue($value)
- * @method static Builder|Win whereStatus($value)
+ * @method static Builder|Win whereStatusId($value)
  * @method static Builder|Win whereUserId($value)
  * @method static Builder|Win whereTypePrizeId($value)
  * @method static Builder|Win whereGoodsId($value)
@@ -66,7 +66,7 @@ class Win extends AbstractModel
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function status(): HasOne
