@@ -1,0 +1,55 @@
+version: '3.4'
+
+services:
+  nginx:
+    container_name: "$$basic$$-nginx"
+    image: nginx:alpine
+    volumes:
+      - ./docker/nginx:/etc/nginx/conf.d:ro
+      - ./docker/log/nginx:/var/log/nginx:rw
+      - ./public:/var/www/app/public:delegated
+    ports:
+      - "80:80"
+
+  php:
+    container_name: "$$basic$$-php"
+    image: php:7.3-fpm-alpine
+    build:
+      context: docker/php
+      dockerfile: Dockerfile
+    user: "1000:1000"
+    volumes:
+      - .:/var/www/app:delegatedmake
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+      # - ./docker/php/without-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    working_dir: /var/www/app
+    environment:
+      - PHP_IDE_CONFIG=serverName=$$basic$$.loc
+      - XDEBUG_CONFIG=remote_enable=true remote_host=172.17.0.1
+
+  postgresql:
+    container_name: "$$basic$$-postgres"
+    restart: always
+    image: postgres
+    build:
+      context: docker/postgres
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=falser
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=$$basic$$_app
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+
+  redis:
+    container_name: "$$basic$$-redis"
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+
+volumes:
+  postgresql-data:
+  redis-data:
