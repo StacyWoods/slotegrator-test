@@ -28,9 +28,11 @@ class CreateStatusTable extends Migration
         $mustHaveStatuses = [
             'pending'       => 'common',
             'rejected'      => 'common',
+            'to_transfer'   => 'money',
             'transferred'   => 'money',
             'converted'     => 'money',
             'accepted'      => 'bonus',
+            'to_send'       => 'goods',
             'sent'          => 'goods',
         ];
 

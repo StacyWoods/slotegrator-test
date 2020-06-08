@@ -23,7 +23,7 @@
                 </div>
                 <div class="max-w-sm relative">
                     @auth
-                        <a href="{{ route('game.index') }}" class="no-underline hover:underline text-sm font-normal text-teal-800 uppercase pr-4">{{ __('Play') }}</a>
+                        <a href="{{ route('game.index') }}" class="no-underline hover:underline text-sm font-normal text-teal-800 uppercase pr-4">{{ __('buttons.play') }}</a>
 
                         <div class="flex flex-col pb-6">
                                 <a href="{{ route('logout') }}"

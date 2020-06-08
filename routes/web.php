@@ -15,7 +15,7 @@ Auth::routes(['verify' => true]);
 
 Route::get('/', 'HomeController@index')->name('index');
 
-Route::group(['prefix' => 'game', 'as' => 'game.'], function () {
+Route::group(['middleware' => 'auth','prefix' => 'game', 'as' => 'game.'], function () {
     Route::get('/', 'GameController@index')->name('index');
-//    Route::get('/', 'GameController@rejectWin')->name('reject_win');
+    Route::put('/win', 'GameController@changePrizeState')->name('save');
 });

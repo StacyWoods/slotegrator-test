@@ -1,5 +1,8 @@
 <?php
 
 return [
-    'reject' => 'Reject',
+    'play' => 'Play',
+    'more' => 'More',
+    'home' => 'Home',
+    'to_main' => 'To main',
 ];

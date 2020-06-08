@@ -10,16 +10,19 @@ class TypePrizeSeeder extends Seeder
             'title' => 'money',
             'limit' => 0,
             'max'   => 0,
+            'multiplicator'   => 1,
         ],
         [
             'title' => 'bonus',
             'limit' => 0,
             'max'   => 0,
+            'multiplicator'   => null,
         ],
         [
             'title' => 'goods',
             'limit' => 0,
             'max'   => 0,
+            'multiplicator'   => null,
         ],
     ];
 
@@ -35,15 +38,18 @@ class TypePrizeSeeder extends Seeder
             switch($item['title']) {
                 case 'goods':
                     $item['limit'] = 10;
+                    $item['min'] = 1;
                     $item['max'] = 1;
                     break;
                 case 'bonus':
                     $item['limit'] = null;
-                    $item['max'] = rand(1, 10000);
+                    $item['min'] = rand(1, 2000);
+                    $item['max'] = rand(2000, 10000);
                     break;
                 case 'money':
                     $item['limit'] = rand(1, 100000);
-                    $item['max'] = rand(1, 100000);
+                    $item['min'] = rand(1, 2000);
+                    $item['max'] = rand(2000, 100000);
                     break;
             }
 
@@ -51,8 +57,9 @@ class TypePrizeSeeder extends Seeder
                 [
                     'title' => $item['title'],
                     'limit' => $item['limit'],
-                    'min' => 1,
+                    'min' => $item['min'],
                     'max' => $item['max'],
+                    'multiplicator' => $item['multiplicator'],
                 ]
             );
         });

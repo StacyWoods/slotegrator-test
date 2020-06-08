@@ -16,6 +16,8 @@ use Illuminate\Support\Carbon;
  * @property int $min
  * @property int $max
  * @property int $current_wins
+ * @property boolean $available
+ * @property double $multiplicator
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|TypePrize query()
@@ -26,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|TypePrize whereMax($value)
  * @method static Builder|TypePrize whereCurrentWins($value)
  * @method static Builder|TypePrize whereAvailable($value)
+ * @method static Builder|TypePrize whereMultiplicator($value)
  * @method static Builder|TypePrize whereCreatedAt($value)
  * @method static Builder|TypePrize whereUpdatedAt($value)
  * @mixin Eloquent
@@ -44,6 +47,7 @@ class TypePrize extends AbstractModel
         'max',
         'current_wins',
         'available',
+        'multiplicator',
     ];
 
     protected $dates = [

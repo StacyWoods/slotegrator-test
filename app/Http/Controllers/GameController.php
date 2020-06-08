@@ -22,33 +22,69 @@ class GameController extends Controller
         $availableTypePrizes = TypePrize::whereAvailable(true)->get();
         $selectedTypePrize = self::getRandomTypePrize($availableTypePrizes);
 
-//        $selectedGoods = self::getRandomGoods();
-//        dump($selectedGoods);
-
-
-
-        $savedPrize = self::getPrize($selectedTypePrize);
-        dump($savedPrize);
+        $win = self::getPrize($selectedTypePrize);
 
         return view('game.index', [
-            'selectedTypePrice' => $selectedTypePrize,
-            'win'        => $savedPrize,
+            'user' => \Auth::user(),
+            'typePrize' => $selectedTypePrize,
+            'win'       => $win,
         ]);
+    }
+
+    public function changePrizeState()
+    {
+        request()->validate([
+            'status' => ['required'],
+            'winId' => ['required'],
+        ]);
+        $status = Status::whereSlug(request()->post('status'))->get()->first();
+        $win = Win::findOrFail(request()->post('winId'));
+        $typePrize = $win->typePrize;
+
+        $winToUpdate = [
+            'status_id' => $status->id
+        ];
+
+        switch($status->slug) {
+            case 'converted':
+                self::convertMoneyToBonus($win->value);
+                break;
+            case 'accepted':
+                self::acceptBonus($win->value);
+                break;
+            case 'rejected':
+                $typePrize->update(['current_wins' => ($typePrize->current_wins - $win->value)]);
+                if ($typePrize->title == 'goods') {
+                    $win->goods->update(['available' => true]);
+                }
+                break;
+        }
+
+        $win->update($winToUpdate);
+
+        return view('game.thanks', [
+            'user' => \Auth::user(),
+            'win' => $win,
+            'typePrize' => $typePrize,
+            'status' => $status,
+        ]);
+    }
+
+    public function success()
+    {
+        return view('game.thanks');
     }
 
     private function getRandomTypePrize(Collection $availableTypePrizes)
     {
-        $countAvailableTypes = ($availableTypePrizes)->count();
-
-        return ($countAvailableTypes > 1)
+        return (($availableTypePrizes)->count() > 1)
             ? $availableTypePrizes->random()
-            : $availableTypePrizes[0]
+            : $availableTypePrizes->first()
         ;
     }
 
     private function getRandomMoneyOrBonusSum(TypePrize $selectedTypePrize)
     {
-
         $typeBalance = ($selectedTypePrize->limit - $selectedTypePrize->current_wins);
         $calculateMax = is_null($selectedTypePrize->limit)
             ? $selectedTypePrize->max
@@ -62,11 +98,9 @@ class GameController extends Controller
     {
         $selectedGoods = Goods::whereAvailable(true)->get();
 
-        $countAvailableGoods = count($selectedGoods);
-
-        return ($countAvailableGoods > 1)
-            ? $selectedGoods[rand(0, $countAvailableGoods-1)]
-            : $selectedGoods[0]
+        return (($selectedGoods)->count() > 1)
+            ? $selectedGoods->random()
+            : $selectedGoods->first()
         ;
     }
 
@@ -82,12 +116,17 @@ class GameController extends Controller
             'user_id' => $user->id,
             'type_prize_id' => $availableTypePrize->id,
         ];
-        $typePriceUpdate = [];
+        $typePriceUpdate = ['available' => $availableTypePrize->available];
 
         switch ($availableTypePrize->title) {
             case 'goods':
                 $prize = self::getRandomGoods();
                 $prize->update(['available' => false]);
+
+                if ((Goods::whereAvailable(true)->get())->count() == 0)
+                {
+                    $typePriceUpdate['available'] = false;
+                }
 
                 $winForSave['value'] = 1;
                 $winForSave['goods_id'] = $prize->id;
@@ -101,7 +140,7 @@ class GameController extends Controller
         }
 
         $typePriceUpdate['current_wins'] = $availableTypePrize->current_wins + $winForSave['value'];
-        if (!is_null($availableTypePrize->limit)) {
+        if (!is_null($availableTypePrize->limit) && $typePriceUpdate['available'] === true) {
             $balance = $availableTypePrize->limit - $typePriceUpdate['current_wins'];
             $typePriceUpdate['available'] = $balance >= $availableTypePrize->min;
         }
@@ -113,8 +152,28 @@ class GameController extends Controller
             return new \Exception($e->getCode(), $e->getMessage());
         }
 
-
-
         return $win;
+    }
+
+    protected function convertMoneyToBonus(int $money)
+    {
+        $moneyTypePrize = TypePrize::whereTitle('money')->get()->first();
+        $bonusTypePrize = TypePrize::whereTitle('bonus')->get()->first();
+
+        $calculatedBonus = $money * $moneyTypePrize->multiplicator;
+
+        $user = \Auth::user();
+        $user->bonus = $money * $moneyTypePrize->multiplicator;
+        $user->save();
+
+        $moneyTypePrize->update(['current_wins' => ($moneyTypePrize->current_wins - $money)]);
+        $bonusTypePrize->update(['current_wins' => ($bonusTypePrize->current_wins + $calculatedBonus)]);
+    }
+
+    protected function acceptBonus(int $bonus)
+    {
+        $user = \Auth::user();
+        $user->bonus += $bonus;
+        $user->save();
     }
 }
