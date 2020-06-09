@@ -19,6 +19,8 @@ TODO:
     php artisan config:clear
     docker exec -it slotegrator-php ash
     ./vendor/bin/phpunit tests/Unit/ConvertMoneyToBonusAndSaveMethodTest.php
+    
+    php artisan money:transfer --limit=5 
 ```
 task
 ```
