@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -37,6 +38,8 @@ use Illuminate\Support\Carbon;
  */
 class Win extends AbstractModel
 {
+    use SoftDeletes;
+
     public $table = 'wins';
     
     protected $fillable = [

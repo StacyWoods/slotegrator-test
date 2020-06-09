@@ -47,7 +47,7 @@ class GameController extends Controller
 
         switch($status->slug) {
             case 'converted':
-                self::convertMoneyToBonus($win->value);
+                self::convertMoneyToBonusAndSave($win->value);
                 break;
             case 'accepted':
                 self::acceptBonus($win->value);
@@ -155,15 +155,15 @@ class GameController extends Controller
         return $win;
     }
 
-    protected function convertMoneyToBonus(int $money)
+    protected function convertMoneyToBonusAndSave(int $money)
     {
         $moneyTypePrize = TypePrize::whereTitle('money')->get()->first();
         $bonusTypePrize = TypePrize::whereTitle('bonus')->get()->first();
 
-        $calculatedBonus = $money * $moneyTypePrize->multiplicator;
+        $calculatedBonus = round($money * $moneyTypePrize->multiplicator, PHP_ROUND_HALF_DOWN);
 
         $user = \Auth::user();
-        $user->bonus = $money * $moneyTypePrize->multiplicator;
+        $user->bonus += $calculatedBonus;
         $user->save();
 
         $moneyTypePrize->update(['current_wins' => ($moneyTypePrize->current_wins - $money)]);

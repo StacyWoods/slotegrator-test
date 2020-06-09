@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -28,6 +29,8 @@ use Illuminate\Support\Carbon;
  */
 class Status extends AbstractModel
 {
+    use SoftDeletes;
+
     public $table = 'statuses';
     
     protected $fillable = [

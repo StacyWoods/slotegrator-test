@@ -40,16 +40,19 @@ class TypePrizeSeeder extends Seeder
                     $item['limit'] = 10;
                     $item['min'] = 1;
                     $item['max'] = 1;
+                    $item['multiplicator'] = null;
                     break;
                 case 'bonus':
                     $item['limit'] = null;
                     $item['min'] = rand(1, 2000);
                     $item['max'] = rand(2000, 10000);
+                    $item['multiplicator'] = null;
                     break;
                 case 'money':
                     $item['limit'] = rand(1, 100000);
                     $item['min'] = rand(1, 2000);
                     $item['max'] = rand(2000, 100000);
+                    $item['multiplicator'] = rand(1, 5);
                     break;
             }
 
